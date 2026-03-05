@@ -239,14 +239,19 @@ def main():
         st.markdown("#### Numeric Columns")
         for col, charts in num_charts.items():
             st.markdown(f"**{col}**")
-            st.plotly_chart(charts["hist"], use_container_width=True)
-            st.plotly_chart(charts["box"], use_container_width=True)
+            cols = st.columns(2)
+            cols[0].plotly_chart(charts["hist"], width="stretch")
+            cols[1].plotly_chart(charts["box"], width="stretch")
+            # cols[2].plotly_chart(charts["density"], width="stretch")
 
     if cat_charts:
         st.markdown("#### Categorical Columns")
-        for col, fig in cat_charts.items():
-            st.markdown(f"**{col}**")
-            st.plotly_chart(fig, use_container_width=True)
+        cols = st.columns(3)
+        
+        for i,(col, fig) in enumerate( cat_charts.items()):
+            with cols[i%3]:
+                st.markdown(f"**{col}**")
+                st.plotly_chart(fig, width="stretch")
 
 
 if __name__ == "__main__":
