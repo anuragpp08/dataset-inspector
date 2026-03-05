@@ -8,7 +8,7 @@ import io
 import pandas as pd
 
 
-MAX_FILE_SIZE_MB = 20
+MAX_FILE_SIZE_MB = 10
 MAX_ROWS = 100_000
 MAX_COLUMNS = 100
 
