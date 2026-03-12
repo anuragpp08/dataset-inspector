@@ -1,5 +1,5 @@
 
-# import streamlit as st
+# import libraries
 from __future__ import annotations
 import sys
 import os
@@ -122,51 +122,78 @@ def main():
         )
     else:
         st.info("No duplicate rows detected.")
-
+    n_cols = 0 
     st.markdown("### 5. Outlier Analysis")
+    left, center, right = st.columns([2,1,2])
+
+    with left:
+        n_cols = st.slider("Plots per row", 1, 4, 4 )
+    cols = st.columns(n_cols)
+
     if not outlier_report.empty and summary["numeric_columns"]:
         st.dataframe(outlier_report)
+
         boxplots = outlier_boxplots(df, summary["numeric_columns"])
-        for fig in boxplots:
-            st.plotly_chart(fig, use_container_width=True)
+
+        # cols = st.columns(3)
+
+        for i, fig in enumerate(boxplots):
+            cols[i % n_cols].plotly_chart(fig, width="stretch")
+
     else:
         st.info("No numeric columns or outliers detected.")
 
-    st.markdown("### 6. Class Distribution")
-    if imbalance_info.get("distributions"):
-        target = imbalance_info.get("target_column")
-        st.write(f"Target column for class distribution: **{target}**")
-        dist_pie = class_distribution_pie(
-            imbalance_info["distributions"], title="Class Distribution"
-        )
-        st.plotly_chart(dist_pie, use_container_width=True)
-        if imbalance_info.get("severe_imbalance"):
-            st.warning(
-                "Severe class imbalance detected: one or more classes represent more than 80% of the data."
-            )
-    else:
-        st.info("No categorical columns suitable for class imbalance analysis.")
+    col1, col2 = st.columns(2)
 
-    st.markdown("### 7. Correlation Heatmap")
-    corr_matrix = correlation_info.get("correlation_matrix")
-    if corr_matrix is not None and not corr_matrix.empty:
-        heatmap_fig = correlation_heatmap(corr_matrix)
-        st.plotly_chart(heatmap_fig, use_container_width=True)
+# ----- Column 1 : Class Distribution -----
+    with col1:
+        st.markdown("### 6. Class Distribution")
 
-        high_pairs = correlation_info.get("high_correlation_pairs", [])
-        if high_pairs:
-            st.warning("Highly correlated feature pairs (|corr| > 0.9) detected.")
-            st.table(
-                {
-                    "Feature A": [a for a, _, _ in high_pairs],
-                    "Feature B": [b for _, b, _ in high_pairs],
-                    "Correlation": [v for _, _, v in high_pairs],
-                }
+        if imbalance_info.get("distributions"):
+            target = imbalance_info.get("target_column")
+            st.write(f"Target column for class distribution: **{target}**")
+
+            dist_pie = class_distribution_pie(
+                imbalance_info["distributions"], title="Class Distribution"
             )
+
+            st.plotly_chart(dist_pie, width="stretch")
+
+            if imbalance_info.get("severe_imbalance"):
+                st.warning(
+                    "Severe class imbalance detected: one or more classes represent more than 80% of the data."
+                )
         else:
-            st.info("No highly correlated feature pairs detected (|corr| <= 0.9).")
-    else:
-        st.info("No numeric columns available for correlation analysis.")
+            st.info("No categorical columns suitable for class imbalance analysis.")
+
+
+    # ----- Column 2 : Correlation Heatmap -----
+    with col2:
+        st.markdown("### 7. Correlation Heatmap")
+
+        corr_matrix = correlation_info.get("correlation_matrix")
+
+        if corr_matrix is not None and not corr_matrix.empty:
+            heatmap_fig = correlation_heatmap(corr_matrix)
+
+            st.plotly_chart(heatmap_fig, width="stretch")
+
+            high_pairs = correlation_info.get("high_correlation_pairs", [])
+
+            if high_pairs:
+                st.warning("Highly correlated feature pairs (|corr| > 0.9) detected.")
+
+                st.table(
+                    {
+                        "Feature A": [a for a, _, _ in high_pairs],
+                        "Feature B": [b for _, b, _ in high_pairs],
+                        "Correlation": [v for _, _, v in high_pairs],
+                    }
+                )
+            else:
+                st.info("No highly correlated feature pairs detected (|corr| <= 0.9).")
+        else:
+            st.info("No numeric columns available for correlation analysis.")
 
     st.markdown("### 8. Health Score Indicator")
     col1, col2 = st.columns([1, 3])
@@ -228,23 +255,39 @@ def main():
 
     # Additional distributions
     st.markdown("### Additional Data Distribution Visualizations")
+
     num_charts = numeric_distribution_charts(df, summary["numeric_columns"])
     cat_charts = categorical_distribution_charts(df, summary["categorical_columns"])
 
+    # ----- Numeric Charts -----
     if num_charts:
         st.markdown("#### Numeric Columns")
-        for col, charts in num_charts.items():
-            st.markdown(f"**{col}**")
-            st.plotly_chart(charts["hist"], use_container_width=True)
-            st.plotly_chart(charts["box"], use_container_width=True)
 
+        cols = st.columns(n_cols)
+        i = 0
+
+        for col, charts in num_charts.items():
+            with cols[i % n_cols]:
+                st.markdown(f"**{col} - Histogram**")
+                st.plotly_chart(charts["hist"], width="stretch")
+            i += 1
+
+            with cols[i % n_cols]:
+                st.markdown(f"**{col} - Boxplot**")
+                st.plotly_chart(charts["box"], width="stretch")
+            i += 1
+
+
+    # ----- Categorical Charts -----
     if cat_charts:
         st.markdown("#### Categorical Columns")
-        for col, fig in cat_charts.items():
-            st.markdown(f"**{col}**")
-            st.plotly_chart(fig, use_container_width=True)
 
+        cols = st.columns(n_cols)
 
+        for i, (col, fig) in enumerate(cat_charts.items()):
+            with cols[i % n_cols]:
+                st.markdown(f"**{col}**")
+                st.plotly_chart(fig, width="stretch")
 if __name__ == "__main__":
     main()
 

@@ -33,28 +33,74 @@ def duplicate_pie_chart(total: int, non_duplicates: int) -> go.Figure:
 
 def outlier_boxplots(df: pd.DataFrame, numeric_columns: List[str]) -> List[go.Figure]:
     figures: List[go.Figure] = []
+
     for col in numeric_columns:
-        fig = px.box(df, y=col, title=f"Boxplot for {col}")
+        fig = px.box(
+            df,
+            y=col,
+            title=f"Boxplot for {col}",
+            color_discrete_sequence=["#4C78A8"]
+        )
+
         figures.append(fig)
+
     return figures
 
 
 def numeric_distribution_charts(df: pd.DataFrame, numeric_columns: List[str]) -> Dict[str, go.Figure]:
     figs: Dict[str, go.Figure] = {}
+
     for col in numeric_columns:
-        hist = px.histogram(df, x=col, nbins=30, title=f"Histogram of {col}")
-        box = px.box(df, y=col, title=f"Boxplot of {col}")
+        hist = px.histogram(
+            df,
+            x=col,
+            nbins=30,
+            title=f"Histogram of {col}",
+            color_discrete_sequence=["#80BF12"]  # blue
+        )
+
+        # Add border to bars
+        hist.update_traces(
+            marker=dict(
+                line=dict(color="black", width=1)
+            )
+        )
+
+        box = px.box(
+            df,
+            y=col,
+            title=f"Boxplot of {col}",
+            color_discrete_sequence=["#38D9A6"]  # same blue
+        )
+
         figs[col] = {"hist": hist, "box": box}
+
     return figs
 
 
 def categorical_distribution_charts(df: pd.DataFrame, categorical_columns: List[str]) -> Dict[str, go.Figure]:
     figs: Dict[str, go.Figure] = {}
+
     for col in categorical_columns:
         vc = df[col].value_counts(dropna=False).reset_index()
         vc.columns = [col, "count"]
-        fig = px.bar(vc, x=col, y="count", title=f"Category Distribution for {col}")
+
+        fig = px.bar(
+            vc,
+            x=col,
+            y="count",
+            title=f"Category Distribution for {col}",
+            color_discrete_sequence=["#F58518"]  # orange
+        )
+
+        fig.update_traces(
+            marker=dict(
+                line=dict(color="black", width=1)
+            )
+        )
+
         figs[col] = fig
+
     return figs
 
 

@@ -58,6 +58,8 @@ ai_dataset_inspector/
     suggestions_engine.py
     report_generator.py
   frontend/
+    .streamlit/
+      config.toml
     app.py
   utils/
     file_loader.py
