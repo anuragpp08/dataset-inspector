@@ -62,7 +62,7 @@ def numeric_distribution_charts(df: pd.DataFrame, numeric_columns: List[str]) ->
         # Add border to bars
         hist.update_traces(
             marker=dict(
-                line=dict(color="black", width=1)
+                line=dict(color="#ADF230", width=1)
             )
         )
 
@@ -95,7 +95,7 @@ def categorical_distribution_charts(df: pd.DataFrame, categorical_columns: List[
 
         fig.update_traces(
             marker=dict(
-                line=dict(color="black", width=1)
+                line=dict(color="#B0276D", width=1)
             )
         )
 
